@@ -113,3 +113,5 @@ def update_transaction_detail(transaction_detail_id):
         return jsonify({"error": str(e)}), 500
     finally:
         s.close()
+
+        

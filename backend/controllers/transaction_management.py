@@ -19,13 +19,13 @@ def get_transaction():
         for trans in transactions:
             trans_data = {
                 'transaction_id': trans.transaction_id,
-                'invoice_number': trans.transaction.invoice_number,
-                'total_price': trans.transaction.total_price,
-                'status': trans.transaction.status,
-                'created_at': trans.transaction.created_at,
-                'shipping_address': trans.transaction.shipping_address,
-                'user_id': trans.transaction.user_id,
-                'voucher_id': trans.transaction.voucher_id
+                'invoice_number': trans.invoice_number,
+                'total_price': trans.total_price,
+                'status': trans.status,
+                'created_at': trans.created_at,
+                'shipping_address': trans.shipping_address,
+                'user_id': trans.user_id,
+                'voucher_id': trans.voucher_id
             }
             transaction_list.append(trans_data)
         return jsonify(transaction_list), 200
@@ -33,6 +33,53 @@ def get_transaction():
         return jsonify({"error": str(e)}), 500
     finally:
         s.close()
+
+@trans_bp.route('/transaction/', methods=['POST'])
+# @login_required
+def create_transaction():
+    session = sessionmaker(connection)
+    s = session()
+
+    try:
+        # Get the request data
+        data = request.get_json()
+
+        # Create a new transaction object
+        new_trans = Transaction(
+            invoice_number=data['invoice_number'],
+            total_price=data['total_price'],
+            status=data['status'],
+            created_at=data['created_at'],
+            shipping_address=data['shipping_address'],
+            user_id=data['user_id'],
+            voucher_id=data['voucher_id']
+        )
+        s.add(new_trans)
+        s.commit()
+
+        return jsonify({
+            'invoice_number' : new_trans.invoice_number,
+            'total_price': new_trans.total_price,
+            'status': new_trans.status,
+            'created_at': new_trans.created_at,
+            'shipping_address': new_trans.shipping_address,
+            'user_id': new_trans.user_id,
+            'voucher_id': new_trans.voucher_id
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        s.close()
+
+            
+
+
+
+
+
+
+
+
 
 # @trans_detail_bp.route('/transaction-details/', methods=['POST'])
 # # @login_required
