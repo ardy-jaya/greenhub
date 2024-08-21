@@ -5,6 +5,9 @@ from models.transaction import Transaction
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from werkzeug.utils import secure_filename
+import random
+import string
+from models.transaction_detail import trans_detail
 
 trans_bp = Blueprint('Transaction', __name__)
 
@@ -46,17 +49,19 @@ def create_transaction():
 
         # Create a new transaction object
         new_trans = Transaction(
-            invoice_number=data['invoice_number'],
+            invoice_number=generate_invoice_number(),
             total_price=data['total_price'],
-            status=data['status'],
-            created_at=data['created_at'],
-            shipping_address=data['shipping_address'],
-            user_id=data['user_id'],
-            voucher_id=data['voucher_id']
+            status='paid',
+            shipping_address=data.get('shipping_address', None),
+            user_id=data.get('user_id', 1),
+            voucher_id=data.get('voucher_id', None)
         )
         s.add(new_trans)
+       
+        transaction_details = s.query(trans_detail).filter_by(user_id=1, transaction_id=None).all()
+        for transaction_detail in transaction_details:
+            transaction_detail.transaction_id = new_trans.transaction_id
         s.commit()
-
         return jsonify({
             'invoice_number' : new_trans.invoice_number,
             'total_price': new_trans.total_price,
@@ -71,7 +76,12 @@ def create_transaction():
     finally:
         s.close()
 
-            
+def generate_invoice_number():
+    letters = string.ascii_uppercase
+    numbers = string.digits
+    invoice_number = ''.join(random.choice(letters + numbers) for _ in range(8))
+    return invoice_number
+
 
 
 

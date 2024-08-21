@@ -19,11 +19,21 @@ from werkzeug.utils import secure_filename
 
 load_dotenv()
 
+if __name__ == '__main__':
+    app.run(debug=True)
+
 app = Flask(__name__, static_folder='uploads')
 cors = CORS(app)
 
 project_root = os.path.abspath(os.path.dirname(__file__))
 upload_folder = os.path.join(project_root, 'uploads/images')
+
+# app.after_request
+# def after_request(response):
+#     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+#     return response
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['UPLOADED_PHOTOS_DEST'] = upload_folder

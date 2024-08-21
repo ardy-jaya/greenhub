@@ -31,7 +31,7 @@ def get_product():
                 'name': prod.name,
                 'price': prod.price,
                 'description': prod.description,
-                'stock': prod.stock,
+                'quantity': prod.quantity,
                 'product_category': prod.product_category,
                 'product_grade': prod.product_grade,
                 'product_type': prod.product_type,
@@ -60,14 +60,13 @@ def create_product():
             os.makedirs(current_app.config['UPLOAD_FOLDER'])
 
         # Check for file part in the request
-        if 'product_image' not in request.files:
-            return jsonify({"error": "No file part"}), 400
-        file = request.files['product_image']
-        if file.filename == '':
-            return jsonify({"error": "No selected file"}), 400
-        if file:
+        file = request.files.get('product_image')
+        if file and file.filename != '':
             filename = secure_filename(file.filename)
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            product_image = filename  # Use the saved filename
+        else:
+            product_image = None # No file uploaded
         
         # Retrieve other form data
         product_id = request.form.get('product_id')
@@ -75,11 +74,11 @@ def create_product():
         name = request.form.get('name')
         price = request.form.get('price')
         description = request.form.get('description')
-        stock = request.form.get('stock')
+        quantity = request.form.get('quantity')
         product_category = request.form.get('product_category')
         product_grade = request.form.get('product_grade')
         product_type = request.form.get('product_type')
-        product_image = filename  # Use the saved filename
+        # product_image = filename  # Use the saved filename
 
         # Create new product
         new_product = product_list(
@@ -88,7 +87,7 @@ def create_product():
             name=name,
             price=price,
             description=description,
-            stock=stock,
+            quantity=quantity,
             product_category=product_category,
             product_grade=product_grade,
             product_type=product_type,

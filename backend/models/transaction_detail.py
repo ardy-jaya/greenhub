@@ -12,7 +12,7 @@ db = SQLAlchemy()
 
 class trans_detail(Base):
     __tablename__ = 'transaction_detail'
-    transaction_detail_id = Column(Integer, primary_key=True, nullable=True)
+    transaction_detail_id = Column(Integer, autoincrement=True, primary_key=True, nullable=True)
     product_id = Column(Integer, nullable=False)
     price = Column(Numeric(10, 2), nullable=False)
     user_id = Column(Integer, nullable=False)
